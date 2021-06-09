@@ -9,11 +9,15 @@ def craete_watermark(font=None,text_size=1,lines_number=1,rotation=None,directio
         size = 2000, 2000
         max_text_size = int(size[0]*1.65)
         txt = Image.new("RGBA", size, (255, 255, 255, 0))
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", int(size[0]*0.165))
+
+        text = input('Input text: ')
+        text_size = int(size[0]*1.65//len(text))
+
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", text_size)
 
         d = ImageDraw.Draw(txt)
 
-        d.text((0, 0), "#"*10, font=font, fill=(0, 0, 0, opacity), direction=direction)
+        d.text((0, 0), text, font=font, fill=(0, 0, 0, opacity), direction=direction)
 
         base = Image.new("RGBA", size, (255, 255, 255, 255))
         out = Image.alpha_composite(base, txt)
