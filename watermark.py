@@ -1,18 +1,23 @@
 from PIL import ImageDraw, Image, ImageFont
 import textwrap
+import statistics
 
 # на один символ по горизонтали 0.0165
 
 
-def craete_watermark(font=None,text_size_cust=9,lines_number=1,rotation=None,direction='ltr',opacity=128,backgrount_as_image=False):
+def craete_watermark(font=None,text_size_cust=1,lines_number=1,rotation=None,direction='ltr',opacity=128,backgrount_as_image=False):
 
     if not backgrount_as_image:
-        size = (1000, 1000)     # x, y
+        size = (1000, 300)     # x, y
 
-        text = '**********'*20
+        text = "Hello world!!! Привет мир!!! *** ******************"
         max_text_size = int(min(size)*1.65//10)
 
-        max_number_char = ...
+        if size[0] >= size[1]:
+            max_number_char = int((statistics.median(range(size[1],size[0]))+1)//20)
+
+        else:
+            max_number_char = 10
 
         text = textwrap.fill(text, max_number_char)
         lines_number = text.count('\n') + 1
@@ -24,7 +29,8 @@ def craete_watermark(font=None,text_size_cust=9,lines_number=1,rotation=None,dir
         else:
             text_size = size[1]//lines_number
 
-        print(text_size)
+        print(statistics.median(range(size[1],size[0])))
+        print(max_number_char)
 
 
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", text_size)
