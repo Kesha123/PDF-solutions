@@ -1,50 +1,66 @@
-from PIL import ImageDraw, Image, ImageFont
-import textwrap
-import statistics
-
-# на один символ по горизонтали 0.0165
+from PIL import ImageDraw, Image, ImageFont, ImageOps
 
 
-def craete_watermark(font=None,text_size_cust=1,lines_number=1,rotation=None,direction='ltr',opacity=128,backgrount_as_image=False):
-
-    if not backgrount_as_image:
-        size = (1000, 300)     # x, y
-
-        text = "Hello world!!! Привет мир!!! *** ******************"
-        max_text_size = int(min(size)*1.65//10)
-
-        if size[0] >= size[1]:
-            max_number_char = int((statistics.median(range(size[1],size[0]))+1)//20)
-
-        else:
-            max_number_char = 10
-
-        text = textwrap.fill(text, max_number_char)
-        lines_number = text.count('\n') + 1
-
-        txt = Image.new("RGBA", size, (255, 255, 255, 0))
-
-        if size[1]//lines_number >= max_text_size//text_size_cust:
-            text_size = max_text_size//text_size_cust
-        else:
-            text_size = size[1]//lines_number
-
-        print(statistics.median(range(size[1],size[0])))
-        print(max_number_char)
+def find_font_size(text, font, image, target_width_ratio):
+    tested_font_size = 1
+    tested_font = ImageFont.truetype(font, tested_font_size)
+    observed_width, observed_height = get_text_size(text, image, tested_font)
+    estimated_font_size = tested_font_size / (observed_width / image.width) * target_width_ratio
+    return round(estimated_font_size)
 
 
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", text_size)
-
-        d = ImageDraw.Draw(txt)
-
-        d.text((0, 0), text, font=font, fill=(0, 0, 0, opacity), direction=direction)
-
-        base = Image.new("RGBA", size, (255, 255, 255, 255))
-        out = Image.alpha_composite(base, txt)
-
-        out.show()
-    else:
-        raise ValueError
+def get_text_size(text, image, font):
+    im = Image.new('RGB', (image.width, image.height))
+    draw = ImageDraw.Draw(im)
+    return draw.textsize(text, font)
 
 
-craete_watermark()
+def make_text():
+    key = True
+    while key:
+        text = input('Input single or multi line text: ')
+        text_size = int(input('Input text size from 0 till 100: '))
+        font = input('Input text font: ')
+        rotation = int(input('Input rotation in degrees: '))
+        opacity = int(input('Input opacity for text from 0 till 255, transparent and not transparent respectively:'))
+        position = int(input('Input x: ')), int(input('Input y:'))
+        yield text, text_size, font, rotation, opacity, position
+        if text == 'q' or text_size == 'q' or rotation == 'q' or opacity == 'q' or position == 'q' or (not text) or (not text_size) or (not rotation) or (not opacity) or (not position):
+            key = False
+
+
+def make_canvas():
+    size = int(input('Input width of canvas: ')), int(input('Height of canvas: '))
+    background_colour = int(input('Input background colour first: ')), int(input('\r second:')), int(input('\r third: ')), int(input(
+        'Input transparency from 0 to 255, not transparent and absolutely transparent respectively: '))
+    return size, background_colour
+
+
+def make_watermark():
+    canvas = make_canvas()
+    image = Image.new('RGBA', size=canvas[0], color=canvas[1])
+
+    for one in make_text():
+        text_ = one[0]
+        text_size = int(one[1]) / 100
+        font_family = one[2]
+        angle = one[3]
+        text_opacity = one[4]
+        position = one[5]
+
+        font_size = find_font_size(text_, font_family, image, text_size)
+        font = ImageFont.truetype(font_family, font_size)
+
+        text_layer = Image.new('L', canvas[0])
+        draw = ImageDraw.Draw(text_layer)
+        draw.text(position, text_, font=font, fill=text_opacity)
+
+        rotated_text_layer = text_layer.rotate(angle, expand=0)
+        image.paste(ImageOps.colorize(rotated_text_layer, (0, 0, 0), (10, 10, 10)), (0, 0), rotated_text_layer)
+
+    image.save('WaterMark.png')
+    image.show()
+
+
+
+make_watermark()
