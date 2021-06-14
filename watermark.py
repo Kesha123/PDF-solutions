@@ -24,10 +24,11 @@ def make_text():
         rotation = int(input('Input rotation in degrees: '))
         opacity = int(input('Input opacity for text from 0 till 255, transparent and not transparent respectively:'))
         position = int(input('Input x: ')), int(input('Input y:'))
-
+        print(text, text_size, font, rotation, opacity, position)
         if text == 'q' or text_size == 'q' or rotation == 'q' or opacity == 'q' or position == 'q' or font == 'q' or (not text) or (not text_size) or (not rotation) or (not opacity) or (not position) or (not font):
             key = False
         yield text, text_size, font, rotation, opacity, position
+
 
 def make_canvas():
     size = int(input('Input width of canvas: ')), int(input('Height of canvas: '))
